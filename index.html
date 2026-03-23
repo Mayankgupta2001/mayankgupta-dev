@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mayank Gupta — Full-Stack Web Developer</title>
+<meta name="description" content="Mayank Gupta — Full-Stack Web Developer. I Build Websites That Grow Your Business. React, Next.js, Node.js. Available for Freelance worldwide."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root {
+  --bg: #04040a;
+  --bg2: #080812;
+  --surface: #0c0c1a;
+  --surface2: #10101f;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(99,179,237,0.3);
+  --gold: #c8a96e;
+  --gold2: #e8c98e;
+  --blue: #63b3ed;
+  --blue2: #90cdf4;
+  --green: #48bb78;
+  --white: #f7f6f3;
+  --muted: #64637a;
+  --muted2: #8e8da8;
+  --radius: 0px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ─── CURSOR ─── */
+#cur { position:fixed; top:0; left:0; width:10px; height:10px; background:var(--gold); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); mix-blend-mode:difference; transition:width .15s,height .15s; }
+#cur-ring { position:fixed; top:0; left:0; width:40px; height:40px; border:1px solid rgba(200,169,110,.35); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); }
+body:has(a:hover) #cur, body:has(button:hover) #cur { width:18px; height:18px; }
+
+/* ─── CANVAS ─── */
+#canvas3d { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+/* ─── NOISE ─── */
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.5;
+}
+
+/* ─── NAV ─── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 64px;
+  background:rgba(4,4,10,.7);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.logo {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px; letter-spacing:3px;
+  color:var(--white); text-decoration:none;
+}
+.logo em { color:var(--gold); font-style:normal; }
+.nav-links { display:flex; gap:36px; list-style:none; }
+.nav-links a { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted2); text-decoration:none; transition:color .25s; }
+.nav-links a:hover { color:var(--gold); }
+.nav-hire {
+  font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  padding:9px 24px; background:var(--gold); color:var(--bg); border:none; cursor:none;
+  transition:background .25s,transform .2s;
+}
+.nav-hire:hover { background:var(--gold2); transform:translateY(-1px); }
+
+/* ─── AVAILABILITY BADGE ─── */
+.avail-badge {
+  position:fixed; bottom:32px; right:32px; z-index:50;
+  display:flex; align-items:center; gap:8px;
+  background:rgba(12,12,26,.9); border:1px solid rgba(72,187,120,.25);
+  padding:10px 18px; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--green); backdrop-filter:blur(16px);
+}
+.avail-dot { width:7px; height:7px; background:var(--green); border-radius:50%; animation:blink 2s infinite; }
+
+/* ─── HERO ─── */
+#hero {
+  position:relative; z-index:2;
+  min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+  padding:0 64px; padding-top:90px;
+}
+.hero-eyebrow {
+  display:flex; align-items:center; gap:14px;
+  font-size:11px; letter-spacing:.25em; text-transform:uppercase; color:var(--blue);
+  margin-bottom:28px; opacity:0; animation:up .7s .1s forwards;
+}
+.hero-eyebrow::before { content:''; width:48px; height:1px; background:var(--blue); opacity:.5; }
+
+.hero-name {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(72px,10vw,140px);
+  letter-spacing:4px; line-height:.95;
+  opacity:0; animation:up .7s .25s forwards;
+}
+.hero-name .first { color:var(--white); display:block; }
+.hero-name .last { color:var(--gold); display:block; }
+
+.hero-role {
+  font-size:clamp(13px,1.4vw,16px); letter-spacing:.06em;
+  color:var(--muted2); margin-top:20px;
+  opacity:0; animation:up .7s .4s forwards;
+}
+.hero-role span { color:var(--white); }
+
+.hero-tagline {
+  font-family:'DM Sans',sans-serif;
+  font-size:clamp(18px,2.2vw,28px); font-weight:300; font-style:italic;
+  color:var(--gold); margin-top:32px; max-width:580px; line-height:1.4;
+  border-left:2px solid var(--gold); padding-left:20px;
+  opacity:0; animation:up .7s .55s forwards;
+}
+
+.hero-stack {
+  display:flex; gap:0; margin-top:36px;
+  opacity:0; animation:up .7s .7s forwards;
+}
+.stack-pill {
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  padding:7px 16px; border:1px solid var(--border); color:var(--muted2);
+  transition:border-color .3s,color .3s;
+}
+.stack-pill:hover { border-color:var(--gold); color:var(--gold); }
+
+.hero-ctas {
+  display:flex; gap:16px; align-items:center; margin-top:44px;
+  opacity:0; animation:up .7s .85s forwards;
+}
+.cta-primary {
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--gold); color:var(--bg); padding:14px 32px;
+  font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  font-family:'DM Sans',sans-serif; text-decoration:none; border:none; cursor:none;
+  transition:background .25s,transform .2s;
+}
+.cta-primary:hover { background:var(--gold2); transform:translateY(-2px); }
+.cta-ghost {
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--muted2); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  text-decoration:none; transition:color .25s;
+}
+.cta-ghost:hover { color:var(--white); }
+.cta-ghost .arr { display:inline-block; transition:transform .25s; }
+.cta-ghost:hover .arr { transform:translateX(5px); }
+
+.hero-metrics {
+  display:flex; gap:0; margin-top:64px; padding-top:44px;
+  border-top:1px solid var(--border);
+  opacity:0; animation:up .7s 1s forwards;
+}
+.metric { padding-right:48px; border-right:1px solid var(--border); }
+.metric:last-child { border-right:none; padding-right:0; padding-left:48px; }
+.metric:first-child { padding-left:0; }
+.m-num {
+  font-family:'Bebas Neue',sans-serif; font-size:42px; letter-spacing:2px;
+  color:var(--gold); display:block; line-height:1;
+}
+.m-label { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+
+/* ─── SECTIONS ─── */
+section { position:relative; z-index:2; padding:110px 64px; }
+.sec-tag {
+  display:flex; align-items:center; gap:14px;
+  font-size:10px; letter-spacing:.25em; text-transform:uppercase; color:var(--blue);
+  margin-bottom:16px;
+}
+.sec-tag::after { content:''; width:60px; height:1px; background:var(--border); }
+.sec-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,6vw,80px); letter-spacing:3px; line-height:.95;
+  margin-bottom:64px;
+}
+
+/* ─── ABOUT ─── */
+#about { background:var(--surface); }
+.about-wrap { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.about-body { font-size:15px; line-height:2; color:var(--muted2); }
+.about-body strong { color:var(--white); font-weight:500; }
+.about-body p + p { margin-top:20px; }
+.skills-wrap { display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+.sk {
+  display:flex; align-items:center; gap:12px;
+  background:var(--bg); border:1px solid var(--border); padding:14px 18px;
+  font-size:12px; letter-spacing:.05em; color:var(--muted2);
+  transition:border-color .3s,color .3s,background .3s;
+}
+.sk:hover { border-color:var(--gold); color:var(--white); background:rgba(200,169,110,.04); }
+.sk-dot { width:5px; height:5px; background:var(--gold); border-radius:50%; flex-shrink:0; }
+
+/* ─── PROJECTS ─── */
+#projects { background:var(--bg2); }
+.projects-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+
+/* Featured = spans 2 cols */
+.proj-card {
+  background:var(--surface); border:1px solid var(--border);
+  padding:36px; position:relative; overflow:hidden;
+  transition:border-color .35s; cursor:none;
+  display:flex; flex-direction:column;
+}
+.proj-card.featured { grid-column:span 2; }
+.proj-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  transform:scaleX(0); transition:transform .4s;
+}
+.proj-card:hover::before { transform:scaleX(1); }
+.proj-card:hover { border-color:rgba(200,169,110,.25); }
+
+.proj-niche {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:20px;
+}
+.niche-tag {
+  font-size:10px; letter-spacing:.15em; text-transform:uppercase;
+  padding:4px 12px; border:1px solid var(--border); color:var(--muted);
+}
+.live-pill {
+  display:flex; align-items:center; gap:6px;
+  font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--green); background:rgba(72,187,120,.08); border:1px solid rgba(72,187,120,.2);
+  padding:3px 10px;
+}
+.live-dot { width:5px; height:5px; background:var(--green); border-radius:50%; animation:blink 2s infinite; }
+.demo-pill {
+  font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--blue); background:rgba(99,179,237,.08); border:1px solid rgba(99,179,237,.2);
+  padding:3px 10px;
+}
+
+.proj-num { font-size:11px; color:var(--muted); font-style:italic; margin-bottom:8px; }
+.proj-name {
+  font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px;
+  color:var(--white); margin-bottom:10px; transition:color .3s; line-height:1;
+}
+.proj-card:hover .proj-name { color:var(--gold); }
+.proj-desc { font-size:13px; line-height:1.8; color:var(--muted2); flex:1; margin-bottom:20px; }
+
+.proj-tech { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:24px; }
+.tech-tag {
+  font-size:10px; letter-spacing:.08em;
+  padding:3px 10px; border:1px solid var(--border); color:var(--muted);
+}
+
+.proj-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--gold); text-decoration:none; margin-top:auto;
+  transition:gap .25s;
+}
+.proj-link:hover { gap:14px; }
+
+/* ─── SERVICES ─── */
+#services { background:var(--surface); }
+.services-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.svc-card {
+  background:var(--bg); border:1px solid var(--border); padding:44px 36px;
+  transition:border-color .35s,background .35s; cursor:none; position:relative; overflow:hidden;
+}
+.svc-card:hover { border-color:var(--gold); background:rgba(200,169,110,.03); }
+.svc-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  transform:scaleX(0); transition:transform .4s;
+}
+.svc-card:hover::after { transform:scaleX(1); }
+.svc-ico { font-size:26px; margin-bottom:20px; display:block; }
+.svc-name { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:2px; margin-bottom:12px; }
+.svc-desc { font-size:13px; line-height:1.85; color:var(--muted2); margin-bottom:28px; }
+.svc-includes { list-style:none; margin-bottom:28px; }
+.svc-includes li { font-size:12px; color:var(--muted2); padding:5px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.svc-includes li::before { content:'→'; color:var(--gold); font-size:10px; }
+.svc-price { font-size:13px; color:var(--gold); }
+.svc-price big { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:1px; }
+
+/* ─── PROCESS ─── */
+#process { background:var(--bg2); }
+.process-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; }
+.step {
+  background:var(--surface); border:1px solid var(--border); padding:36px 28px;
+  position:relative; overflow:hidden;
+}
+.step-num {
+  font-family:'Bebas Neue',sans-serif; font-size:64px; letter-spacing:2px;
+  color:rgba(200,169,110,.1); position:absolute; top:12px; right:20px; line-height:1;
+}
+.step-ico { font-size:24px; margin-bottom:16px; display:block; position:relative; z-index:1; }
+.step-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; margin-bottom:10px; position:relative; z-index:1; }
+.step-desc { font-size:13px; line-height:1.8; color:var(--muted2); position:relative; z-index:1; }
+
+/* ─── TESTIMONIALS ─── */
+#testimonials { background:var(--surface); }
+.testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.testi-card { background:var(--bg); border:1px solid var(--border); padding:36px; }
+.quote { font-family:'Bebas Neue',sans-serif; font-size:72px; color:var(--gold); opacity:.3; line-height:.8; display:block; margin-bottom:12px; }
+.testi-text { font-size:14px; line-height:1.85; color:var(--muted2); font-style:italic; margin-bottom:24px; }
+.testi-author { display:flex; align-items:center; gap:14px; }
+.avatar {
+  width:42px; height:42px; border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--blue));
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif; font-size:15px; color:var(--bg); flex-shrink:0;
+}
+.a-name { font-size:13px; color:var(--white); }
+.a-role { font-size:11px; color:var(--muted); margin-top:2px; }
+
+/* ─── CTA / CONTACT ─── */
+#contact {
+  background:var(--bg);
+  text-align:center;
+  border-top:1px solid var(--border);
+  padding:120px 64px;
+}
+.contact-big {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(40px,6vw,88px); letter-spacing:4px; line-height:.95;
+  margin-bottom:16px;
+}
+.contact-sub { font-size:15px; color:var(--muted2); max-width:480px; margin:0 auto 48px; line-height:1.8; }
+.contact-methods { display:flex; justify-content:center; gap:2px; margin-bottom:56px; flex-wrap:wrap; }
+.contact-method {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  background:var(--surface); border:1px solid var(--border);
+  padding:24px 40px; text-decoration:none;
+  transition:border-color .3s,background .3s;
+}
+.contact-method:hover { border-color:var(--gold); background:rgba(200,169,110,.04); }
+.cm-ico { font-size:20px; }
+.cm-label { font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+.cm-val { font-size:13px; color:var(--white); }
+.social-row { display:flex; justify-content:center; gap:32px; }
+.soc-link {
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted2); text-decoration:none; transition:color .3s;
+}
+.soc-link:hover { color:var(--gold); }
+.soc-link::before { content:'↗'; }
+
+/* ─── FOOTER ─── */
+footer {
+  position:relative; z-index:2;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:24px 64px; border-top:1px solid var(--border);
+  font-size:11px; letter-spacing:.08em; color:var(--muted);
+}
+
+/* ─── SCROLL REVEAL ─── */
+.reveal { opacity:0; transform:translateY(36px); transition:opacity .75s ease,transform .75s ease; }
+.reveal.in { opacity:1; transform:none; }
+.reveal-d1 { transition-delay:.1s; }
+.reveal-d2 { transition-delay:.2s; }
+.reveal-d3 { transition-delay:.3s; }
+.reveal-d4 { transition-delay:.4s; }
+
+/* ─── KEYFRAMES ─── */
+@keyframes up { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:none} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ─── MOBILE ─── */
+@media(max-width:900px){
+  nav{padding:18px 24px;}
+  .nav-links{display:none;}
+  #hero,section,#contact{padding-left:24px;padding-right:24px;}
+  .about-wrap{grid-template-columns:1fr;}
+  .projects-grid{grid-template-columns:1fr;}
+  .proj-card.featured{grid-column:span 1;}
+  .services-grid,.process-steps,.testi-grid{grid-template-columns:1fr;}
+  .hero-metrics{gap:0; flex-wrap:wrap;}
+  .metric{padding:16px 24px 16px 0; border-right:none; border-bottom:1px solid var(--border);}
+  .contact-methods{flex-direction:column; align-items:center;}
+  footer{padding:20px 24px; flex-direction:column; gap:8px; text-align:center;}
+  .avail-badge{bottom:16px; right:16px;}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<canvas id="canvas3d"></canvas>
+
+<!-- AVAILABILITY -->
+<div class="avail-badge"><span class="avail-dot"></span>Available for Projects</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">MG<em>.</em></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Work</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="https://wa.me/918003987193" target="_blank" class="nav-hire">Hire Me →</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-eyebrow">Full-Stack Web Developer · Jaipur, India</div>
+  <h1 class="hero-name">
+    <span class="first">Mayank</span>
+    <span class="last">Gupta</span>
+  </h1>
+  <p class="hero-role"><span>Full-Stack Web Developer</span> · React · Next.js · Node.js · 2+ Live Projects</p>
+  <p class="hero-tagline">"I Build Websites That Grow Your Business."</p>
+  <div class="hero-stack">
+    <span class="stack-pill">React.js</span>
+    <span class="stack-pill">Next.js</span>
+    <span class="stack-pill">Node.js</span>
+    <span class="stack-pill">MongoDB</span>
+    <span class="stack-pill">Tailwind</span>
+    <span class="stack-pill">Three.js</span>
+  </div>
+  <div class="hero-ctas">
+    <a href="#projects" class="cta-primary">View My Work ↓</a>
+    <a href="#contact" class="cta-ghost">Start a Project <span class="arr">→</span></a>
+  </div>
+  <div class="hero-metrics">
+    <div class="metric"><span class="m-num">2+</span><span class="m-label">Live Projects</span></div>
+    <div class="metric"><span class="m-num">10+</span><span class="m-label">Demo Sites Built</span></div>
+    <div class="metric"><span class="m-num">7</span><span class="m-label">Niches Covered</span></div>
+    <div class="metric"><span class="m-num">100%</span><span class="m-label">Client Satisfaction</span></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-tag">About Me</div>
+  <h2 class="sec-title reveal">WHO I AM</h2>
+  <div class="about-wrap">
+    <div>
+      <div class="about-body reveal">
+        <p>Hey, I'm <strong>Mayank Gupta</strong> — a passionate full-stack web developer based in <strong>Jaipur, Rajasthan</strong>. I specialise in building <strong>fast, beautiful, and conversion-focused websites</strong> for businesses across India and worldwide.</p>
+        <p>I've delivered <strong>real client projects</strong> including SoftPro9 — a full-scale IT training & services platform used by thousands of students. I build everything from simple landing pages to complete web applications.</p>
+        <p>Whether you're a <strong>local business in Rajasthan</strong>, an <strong>Indian startup</strong>, or a <strong>foreign company</strong> looking for quality development at honest prices — I deliver results that matter.</p>
+        <p style="margin-top:28px; padding:20px; border:1px solid rgba(200,169,110,.2); background:rgba(200,169,110,.04);">
+          📞 <strong style="color:var(--white)">+91 80039 87193</strong>&nbsp;&nbsp;·&nbsp;&nbsp;
+          ✉️ <strong style="color:var(--white)">mg8003987193@gmail.com</strong>
+        </p>
+      </div>
+    </div>
+    <div class="skills-wrap reveal reveal-d1">
+      <div class="sk"><span class="sk-dot"></span>React.js</div>
+      <div class="sk"><span class="sk-dot"></span>Next.js</div>
+      <div class="sk"><span class="sk-dot"></span>Node.js</div>
+      <div class="sk"><span class="sk-dot"></span>MongoDB</div>
+      <div class="sk"><span class="sk-dot"></span>TypeScript</div>
+      <div class="sk"><span class="sk-dot"></span>Tailwind CSS</div>
+      <div class="sk"><span class="sk-dot"></span>REST APIs</div>
+      <div class="sk"><span class="sk-dot"></span>PostgreSQL</div>
+      <div class="sk"><span class="sk-dot"></span>Three.js</div>
+      <div class="sk"><span class="sk-dot"></span>GSAP / Framer</div>
+      <div class="sk"><span class="sk-dot"></span>Git & GitHub</div>
+      <div class="sk"><span class="sk-dot"></span>Vercel / AWS</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="sec-tag">Selected Work</div>
+  <h2 class="sec-title reveal">PROJECTS</h2>
+  <div class="projects-grid">
+
+    <!-- 01 LIVE - SoftPro9 (featured) -->
+    <div class="proj-card featured reveal">
+      <div class="proj-niche">
+        <span class="niche-tag">Ed-Tech · IT Services</span>
+        <span class="live-pill"><span class="live-dot"></span>Live Client</span>
+      </div>
+      <div class="proj-num">01</div>
+      <h3 class="proj-name">SoftPro9 Academy</h3>
+      <p class="proj-desc">Full-scale technology training & IT services platform — SAP solutions, web & app development, AI-powered digital marketing, recruitment services, and a complete blog CMS. Serving 10,000+ students across India.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">Next.js</span><span class="tech-tag">React</span><span class="tech-tag">Node.js</span><span class="tech-tag">MongoDB</span><span class="tech-tag">SEO</span><span class="tech-tag">Blog CMS</span>
+      </div>
+      <a href="https://softpro9.com" target="_blank" class="proj-link">View Live → softpro9.com</a>
+    </div>
+
+    <!-- 02 LIVE - TinyMillion -->
+    <div class="proj-card reveal reveal-d1">
+      <div class="proj-niche">
+        <span class="niche-tag">Business</span>
+        <span class="live-pill"><span class="live-dot"></span>Live Client</span>
+      </div>
+      <div class="proj-num">02</div>
+      <h3 class="proj-name">TinyMillion</h3>
+      <p class="proj-desc">Professional business website with modern animations, clean UI and optimised for performance and conversions.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">React</span><span class="tech-tag">Tailwind</span><span class="tech-tag">GSAP</span>
+      </div>
+      <a href="https://tinymillion.com" target="_blank" class="proj-link">View Live →</a>
+    </div>
+
+    <!-- 03 Hype Rooftop -->
+    <div class="proj-card reveal">
+      <div class="proj-niche">
+        <span class="niche-tag">Restaurant · Cafe</span>
+        <span class="demo-pill">Demo</span>
+      </div>
+      <div class="proj-num">03</div>
+      <h3 class="proj-name">Hype Rooftop Cafe</h3>
+      <p class="proj-desc">Premium rooftop cafe landing page — table reservation system, menu display, reviews, gallery & location integration.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JS</span><span class="tech-tag">Reservation Form</span>
+      </div>
+      <a href="https://hype-rooftop-cafe-lounge.vercel.app/" target="_blank" class="proj-link">View Demo →</a>
+    </div>
+
+    <!-- 04 Ironman Gym -->
+    <div class="proj-card reveal reveal-d1">
+      <div class="proj-niche">
+        <span class="niche-tag">Gym · Fitness</span>
+        <span class="demo-pill">Demo</span>
+      </div>
+      <div class="proj-num">04</div>
+      <h3 class="proj-name">Ironman Gym</h3>
+      <p class="proj-desc">High-energy gym website with trainer profiles, membership pricing, transformation results & WhatsApp lead capture.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JS</span><span class="tech-tag">Lead Gen</span>
+      </div>
+      <a href="https://ironman-gym.vercel.app/" target="_blank" class="proj-link">View Demo →</a>
+    </div>
+
+    <!-- 05 Suvidha Property (featured) -->
+    <div class="proj-card featured reveal">
+      <div class="proj-niche">
+        <span class="niche-tag">Real Estate</span>
+        <span class="demo-pill">Demo</span>
+      </div>
+      <div class="proj-num">05</div>
+      <h3 class="proj-name">Suvidha Property Dealer</h3>
+      <p class="proj-desc">Complete real estate platform with filterable property listings (residential, commercial, plots), enquiry forms, property cards with pricing, client testimonials & Google Maps integration.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JS</span><span class="tech-tag">Filter System</span><span class="tech-tag">Maps</span>
+      </div>
+      <a href="https://suvidha-property-dealer-kota.vercel.app/" target="_blank" class="proj-link">View Demo →</a>
+    </div>
+
+    <!-- 06 Harsh's Makeover -->
+    <div class="proj-card reveal reveal-d1">
+      <div class="proj-niche">
+        <span class="niche-tag">Salon · Beauty</span>
+        <span class="demo-pill">Demo</span>
+      </div>
+      <div class="proj-num">06</div>
+      <h3 class="proj-name">Harsh's Makeover</h3>
+      <p class="proj-desc">Premium unisex salon & academy — before/after gallery, service menu, booking form & Instagram integration.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JS</span><span class="tech-tag">Gallery</span>
+      </div>
+      <a href="https://harshs-makeover.vercel.app/" target="_blank" class="proj-link">View Demo →</a>
+    </div>
+
+    <!-- 07 Quantum Kota -->
+    <div class="proj-card reveal">
+      <div class="proj-niche">
+        <span class="niche-tag">Coaching · Ed-Tech</span>
+        <span class="demo-pill">Demo</span>
+      </div>
+      <div class="proj-num">07</div>
+      <h3 class="proj-name">Quantum Kota — GG Sir</h3>
+      <p class="proj-desc">Physics coaching institute site with course listings, topper results, student reviews & admission enquiry system.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JS</span><span class="tech-tag">Admission Form</span>
+      </div>
+      <a href="https://quantum-kota-g-g-sir.vercel.app/" target="_blank" class="proj-link">View Demo →</a>
+    </div>
+
+    <!-- 08 Akshat Electronics -->
+    <div class="proj-card reveal reveal-d1">
+      <div class="proj-niche">
+        <span class="niche-tag">E-Commerce · Shop</span>
+        <span class="demo-pill">Demo</span>
+      </div>
+      <div class="proj-num">08</div>
+      <h3 class="proj-name">Akshat Electronics</h3>
+      <p class="proj-desc">Electronics & furniture store with product catalog, featured deals, brand showcase, reviews & WhatsApp chat widget.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JS</span><span class="tech-tag">Product Catalog</span>
+      </div>
+      <a href="https://akshat-electronics.vercel.app/" target="_blank" class="proj-link">View Demo →</a>
+    </div>
+
+    <!-- 09 Roop Shringar -->
+    <div class="proj-card reveal">
+      <div class="proj-niche">
+        <span class="niche-tag">Fashion · Retail</span>
+        <span class="demo-pill">Demo</span>
+      </div>
+      <div class="proj-num">09</div>
+      <h3 class="proj-name">Roop Shringar Sarees</h3>
+      <p class="proj-desc">Elegant saree showroom website — collection gallery, product categories, Instagram feed & store location info.</p>
+      <div class="proj-tech">
+        <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JS</span><span class="tech-tag">Gallery</span>
+      </div>
+      <a href="https://roop-shringar-saree-showroom.vercel.app/" target="_blank" class="proj-link">View Demo →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- SERVICES & PRICING -->
+<section id="services">
+  <div class="sec-tag">What I Offer</div>
+  <h2 class="sec-title reveal">SERVICES &amp; PRICING</h2>
+  <div class="services-grid">
+    <div class="svc-card reveal">
+      <span class="svc-ico">⬡</span>
+      <div class="svc-name">Landing Page</div>
+      <p class="svc-desc">Single-page, high-converting website. Perfect for local businesses, product launches & campaigns.</p>
+      <ul class="svc-includes">
+        <li>Responsive design</li>
+        <li>Contact / WhatsApp form</li>
+        <li>Google Maps integration</li>
+        <li>Basic SEO setup</li>
+        <li>Delivered in 3–5 days</li>
+      </ul>
+      <div class="svc-price">Starting at <big>₹8,000</big><br><small style="color:var(--muted);font-size:11px;">~ $100 USD</small></div>
+    </div>
+    <div class="svc-card reveal reveal-d1">
+      <span class="svc-ico">◈</span>
+      <div class="svc-name">Business Website</div>
+      <p class="svc-desc">Multi-page professional website with CMS, blog, booking system and full responsive design.</p>
+      <ul class="svc-includes">
+        <li>5–8 pages</li>
+        <li>Blog / CMS included</li>
+        <li>Booking or enquiry system</li>
+        <li>SEO optimised</li>
+        <li>Delivered in 7–14 days</li>
+      </ul>
+      <div class="svc-price">Starting at <big>₹20,000</big><br><small style="color:var(--muted);font-size:11px;">~ $250 USD</small></div>
+    </div>
+    <div class="svc-card reveal reveal-d2">
+      <span class="svc-ico">◉</span>
+      <div class="svc-name">Full-Stack App</div>
+      <p class="svc-desc">Complete web applications — auth, database, APIs, dashboards. Scalable and production-ready.</p>
+      <ul class="svc-includes">
+        <li>React / Next.js frontend</li>
+        <li>Node.js + MongoDB backend</li>
+        <li>User auth & dashboard</li>
+        <li>REST API integration</li>
+        <li>Deployed on Vercel / AWS</li>
+      </ul>
+      <div class="svc-price">Starting at <big>₹50,000</big><br><small style="color:var(--muted);font-size:11px;">~ $600 USD</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="sec-tag">How I Work</div>
+  <h2 class="sec-title reveal">MY PROCESS</h2>
+  <div class="process-steps">
+    <div class="step reveal">
+      <span class="step-num">01</span>
+      <span class="step-ico">💬</span>
+      <div class="step-title">Discovery Call</div>
+      <p class="step-desc">We discuss your business, goals, target audience and project requirements. Free 15-min call.</p>
+    </div>
+    <div class="step reveal reveal-d1">
+      <span class="step-num">02</span>
+      <span class="step-ico">🎨</span>
+      <div class="step-title">Design &amp; Plan</div>
+      <p class="step-desc">I create a wireframe / design mockup for your approval before writing a single line of code.</p>
+    </div>
+    <div class="step reveal reveal-d2">
+      <span class="step-num">03</span>
+      <span class="step-ico">⚡</span>
+      <div class="step-title">Build &amp; Review</div>
+      <p class="step-desc">Fast development with regular updates. You can review progress and give feedback at every stage.</p>
+    </div>
+    <div class="step reveal reveal-d3">
+      <span class="step-num">04</span>
+      <span class="step-ico">🚀</span>
+      <div class="step-title">Launch &amp; Support</div>
+      <p class="step-desc">We go live! I handle deployment, domain setup, and provide 30 days of free post-launch support.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="sec-tag">Client Words</div>
+  <h2 class="sec-title reveal">WHAT CLIENTS SAY</h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <span class="quote">"</span>
+      <p class="testi-text">Mayank delivered our full website ahead of schedule. The quality of code and attention to design detail was impressive. He's communicative, professional and genuinely cares about the end result.</p>
+      <div class="testi-author">
+        <div class="avatar">SP</div>
+        <div><div class="a-name">SoftPro9 Team</div><div class="a-role">IT Services Company, Bangalore</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal reveal-d1">
+      <span class="quote">"</span>
+      <p class="testi-text">Great work ethic and very responsive. He understood our requirements quickly and built exactly what we needed. Will definitely hire again for our next project.</p>
+      <div class="testi-author">
+        <div class="avatar">TM</div>
+        <div><div class="a-name">TiinyMillion Client</div><div class="a-role">Business Owner, India</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal reveal-d2">
+      <span class="quote">"</span>
+      <p class="testi-text">Knowledgeable developer who brings creative ideas to the table. The final product exceeded our expectations in both design and performance. Highly recommended!</p>
+      <div class="testi-author">
+        <div class="avatar">★</div>
+        <div><div class="a-name">Freelance Client</div><div class="a-role">Startup Founder, India</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-tag" style="justify-content:center">Get In Touch</div>
+  <div class="contact-big reveal">
+    LET'S BUILD<br><span style="color:var(--gold)">SOMETHING GREAT</span>
+  </div>
+  <p class="contact-sub reveal">Available for freelance projects, full-time roles and collaborations. Indian &amp; international clients welcome. Response within 24 hours.</p>
+  <div class="contact-methods reveal">
+    <a href="mailto:mg8003987193@gmail.com" class="contact-method">
+      <span class="cm-ico">✉️</span>
+      <span class="cm-label">Email</span>
+      <span class="cm-val">mg8003987193@gmail.com</span>
+    </a>
+    <a href="https://wa.me/918003987193" target="_blank" class="contact-method">
+      <span class="cm-ico">💬</span>
+      <span class="cm-label">WhatsApp</span>
+      <span class="cm-val">+91 80039 87193</span>
+    </a>
+    <a href="tel:+918003987193" class="contact-method">
+      <span class="cm-ico">📞</span>
+      <span class="cm-label">Call</span>
+      <span class="cm-val">+91 80039 87193</span>
+    </a>
+  </div>
+  <div class="social-row reveal">
+    <a href="https://github.com/Mayankgupta2001" target="_blank" class="soc-link">GitHub</a>
+    <a href="https://www.linkedin.com/in/mayank-gupta-1421502a4/" target="_blank" class="soc-link">LinkedIn</a>
+    <a href="https://softpro9.com" target="_blank" class="soc-link">SoftPro9</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 Mayank Gupta. All rights reserved.</span>
+  <span style="color:var(--gold);">"I Build Websites That Grow Your Business."</span>
+  <span>Jaipur, Rajasthan 🇮🇳</span>
+</footer>
+
+<script>
+/* ── CURSOR ── */
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+(function loop(){ rx+=(mx-rx)*.1; ry+=(my-ry)*.1;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(loop); })();
+
+/* ── THREE.JS 3D BG ── */
+const canvas = document.getElementById('canvas3d');
+const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,100);
+cam.position.z=6;
+
+// Torus knot — gold wireframe
+const kGeo = new THREE.TorusKnotGeometry(2,0.5,180,32,2,3);
+const kMat = new THREE.MeshBasicMaterial({color:0xc8a96e,wireframe:true,transparent:true,opacity:.1});
+const knot = new THREE.Mesh(kGeo,kMat);
+knot.position.set(4.5,-0.5,-2);
+scene.add(knot);
+
+// Icosahedron — blue wireframe
+const iGeo = new THREE.IcosahedronGeometry(2.5,1);
+const iMat = new THREE.MeshBasicMaterial({color:0x63b3ed,wireframe:true,transparent:true,opacity:.05});
+const ico = new THREE.Mesh(iGeo,iMat);
+ico.position.set(-4,1,-4);
+scene.add(ico);
+
+// Octahedron accent
+const oGeo = new THREE.OctahedronGeometry(1,0);
+const oMat = new THREE.MeshBasicMaterial({color:0xc8a96e,wireframe:true,transparent:true,opacity:.12});
+const oct = new THREE.Mesh(oGeo,oMat);
+oct.position.set(-1.5,2.5,-3);
+scene.add(oct);
+
+// Particles
+const pCount=300;
+const pPos=new Float32Array(pCount*3);
+for(let i=0;i<pCount;i++){
+  pPos[i*3]=(Math.random()-.5)*24;
+  pPos[i*3+1]=(Math.random()-.5)*20;
+  pPos[i*3+2]=(Math.random()-.5)*12-2;
+}
+const pGeo=new THREE.BufferGeometry();
+pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+scene.add(new THREE.Points(pGeo,new THREE.PointsMaterial({color:0xc8a96e,size:.02,transparent:true,opacity:.45})));
+
+// Grid
+const grid=new THREE.GridHelper(50,50,0x111130,0x0a0a18);
+grid.position.y=-5; grid.rotation.x=.12;
+scene.add(grid);
+
+// Mouse parallax
+let pmx=0,pmy=0;
+document.addEventListener('mousemove',e=>{pmx=(e.clientX/innerWidth-.5)*2; pmy=-(e.clientY/innerHeight-.5)*2;});
+
+let t=0;
+(function animate(){
+  requestAnimationFrame(animate); t+=.004;
+  knot.rotation.x=t*.35; knot.rotation.y=t*.55;
+  ico.rotation.y=t*.18; ico.rotation.x=t*.08;
+  oct.rotation.x=t*.6; oct.rotation.z=t*.4;
+  cam.position.x+=(pmx*.5-cam.position.x)*.025;
+  cam.position.y+=(pmy*.25-cam.position.y)*.025;
+  cam.lookAt(0,0,0);
+  renderer.render(scene,cam);
+})();
+
+window.addEventListener('resize',()=>{
+  cam.aspect=innerWidth/innerHeight;
+  cam.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+/* ── SCROLL REVEAL ── */
+const els=document.querySelectorAll('.reveal');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('in');});
+},{threshold:.1});
+els.forEach(e=>obs.observe(e));
+</script>
+</body>
+</html>
