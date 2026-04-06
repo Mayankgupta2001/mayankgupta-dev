@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mayank Gupta — Full-Stack Web Developer</title>
+<meta name="description" content="Mayank Gupta — Full-Stack Web Developer. I Build Websites That Grow Your Business. React, Next.js, Node.js. Available for Freelance worldwide."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+/* ═══════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════ */
+:root {
+  --bg: #04040a;
+  --bg2: #080812;
+  --surface: #0c0c1a;
+  --border: rgba(255,255,255,0.06);
+  --gold: #c8a96e;
+  --gold2: #e8c98e;
+  --blue: #63b3ed;
+  --green: #48bb78;
+  --white: #f7f6f3;
+  --muted: #64637a;
+  --muted2: #8e8da8;
+
+  /* Spacing scale */
+  --sp-xs: 12px;
+  --sp-sm: 20px;
+  --sp-md: 32px;
+  --sp-lg: 56px;
+  --sp-xl: 96px;
+
+  /* Side padding */
+  --px: 64px;
+}
+
+/* Tablet */
+@media(max-width:1024px){ :root{ --px:40px; --sp-xl:72px; --sp-lg:44px; } }
+/* Mobile */
+@media(max-width:640px){  :root{ --px:20px; --sp-xl:56px; --sp-lg:36px; --sp-md:24px; } }
+
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--bg); color:var(--white);
+  font-family:'DM Sans',sans-serif;
+  overflow-x:hidden;
+}
+img{ max-width:100%; display:block; }
+a{ text-decoration:none; color:inherit; }
+
+/* ═══════════════════════════════════════
+   CURSOR — desktop only
+═══════════════════════════════════════ */
+#cur,#cur-ring{ display:none; }
+@media(hover:hover) and (pointer:fine){
+  body{ cursor:none; }
+  #cur{
+    display:block; position:fixed; top:0; left:0;
+    width:10px; height:10px; background:var(--gold);
+    border-radius:50%; pointer-events:none; z-index:9999;
+    transform:translate(-50%,-50%); mix-blend-mode:difference;
+    transition:width .15s,height .15s;
+  }
+  #cur-ring{
+    display:block; position:fixed; top:0; left:0;
+    width:38px; height:38px; border:1px solid rgba(200,169,110,.3);
+    border-radius:50%; pointer-events:none; z-index:9998;
+    transform:translate(-50%,-50%);
+  }
+  body:has(a:hover) #cur,body:has(button:hover) #cur{ width:18px; height:18px; }
+}
+
+/* ═══════════════════════════════════════
+   CANVAS 3D
+═══════════════════════════════════════ */
+#canvas3d{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+/* Disable heavy 3D on low-end mobile */
+@media(max-width:480px){ #canvas3d{ opacity:.4; } }
+
+/* Noise overlay */
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.5;
+}
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px var(--px);
+  background:rgba(4,4,10,.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  gap:16px;
+}
+.logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px; letter-spacing:3px; color:var(--white);
+  flex-shrink:0;
+}
+.logo em{ color:var(--gold); font-style:normal; }
+
+/* Desktop nav links */
+.nav-links{
+  display:flex; gap:28px; list-style:none;
+  flex:1; justify-content:center;
+}
+.nav-links a{
+  font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted2); transition:color .25s;
+}
+.nav-links a:hover{ color:var(--gold); }
+
+.nav-hire{
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  padding:8px 20px; background:var(--gold); color:var(--bg);
+  border:none; white-space:nowrap; flex-shrink:0;
+  transition:background .25s; cursor:pointer;
+}
+.nav-hire:hover{ background:var(--gold2); }
+
+/* Hamburger — mobile */
+.ham{
+  display:none; flex-direction:column; gap:5px;
+  background:none; border:none; cursor:pointer; padding:4px;
+}
+.ham span{
+  display:block; width:22px; height:2px;
+  background:var(--white); transition:transform .3s,opacity .3s;
+}
+
+/* Mobile menu drawer */
+.mob-menu{
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(4,4,10,.97); z-index:99;
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:36px;
+}
+.mob-menu.open{ display:flex; }
+.mob-menu a{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:40px; letter-spacing:4px; color:var(--white);
+  transition:color .25s;
+}
+.mob-menu a:hover{ color:var(--gold); }
+.mob-close{
+  position:absolute; top:20px; right:24px;
+  background:none; border:none; color:var(--muted2);
+  font-size:28px; cursor:pointer; line-height:1;
+}
+
+@media(max-width:768px){
+  .nav-links{ display:none; }
+  .nav-hire{ display:none; }
+  .ham{ display:flex; }
+}
+
+/* ═══════════════════════════════════════
+   AVAILABILITY BADGE
+═══════════════════════════════════════ */
+.avail-badge{
+  position:fixed; bottom:24px; right:20px; z-index:50;
+  display:flex; align-items:center; gap:8px;
+  background:rgba(12,12,26,.95); border:1px solid rgba(72,187,120,.3);
+  padding:8px 14px; font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--green); backdrop-filter:blur(12px);
+}
+.avail-dot{ width:6px; height:6px; background:var(--green); border-radius:50%; animation:blink 2s infinite; flex-shrink:0; }
+@media(max-width:400px){ .avail-badge{ bottom:12px; right:12px; font-size:9px; padding:7px 12px; } }
+
+/* ═══════════════════════════════════════
+   SECTION BASE
+═══════════════════════════════════════ */
+section{
+  position:relative; z-index:2;
+  padding:var(--sp-xl) var(--px);
+}
+.sec-tag{
+  display:flex; align-items:center; gap:12px;
+  font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--blue);
+  margin-bottom:14px;
+}
+.sec-tag::after{ content:''; width:48px; height:1px; background:var(--border); }
+.sec-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(40px,6vw,80px); letter-spacing:3px; line-height:.95;
+  margin-bottom:var(--sp-lg);
+}
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+#hero{
+  position:relative; z-index:2;
+  min-height:100svh;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:0 var(--px); padding-top:80px; padding-bottom:var(--sp-lg);
+}
+.hero-eyebrow{
+  display:flex; align-items:center; gap:12px;
+  font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--blue);
+  margin-bottom:20px;
+  opacity:0; animation:up .7s .1s forwards;
+}
+.hero-eyebrow::before{ content:''; width:36px; height:1px; background:var(--blue); opacity:.5; flex-shrink:0; }
+
+.hero-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(64px,12vw,140px);
+  letter-spacing:3px; line-height:.92;
+  opacity:0; animation:up .7s .25s forwards;
+}
+.hero-name .first{ color:var(--white); display:block; }
+.hero-name .last{ color:var(--gold); display:block; }
+
+.hero-role{
+  font-size:clamp(12px,1.3vw,15px); letter-spacing:.05em;
+  color:var(--muted2); margin-top:16px; line-height:1.6;
+  opacity:0; animation:up .7s .4s forwards;
+}
+.hero-role span{ color:var(--white); }
+
+.hero-tagline{
+  font-size:clamp(16px,2vw,26px); font-weight:300; font-style:italic;
+  color:var(--gold); margin-top:24px;
+  max-width:520px; line-height:1.4;
+  border-left:2px solid var(--gold); padding-left:16px;
+  opacity:0; animation:up .7s .55s forwards;
+}
+
+.hero-stack{
+  display:flex; flex-wrap:wrap; gap:0; margin-top:28px;
+  opacity:0; animation:up .7s .7s forwards;
+}
+.stack-pill{
+  font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  padding:6px 14px; border:1px solid var(--border); color:var(--muted2);
+  transition:border-color .3s,color .3s; margin:0 2px 2px 0;
+}
+.stack-pill:hover{ border-color:var(--gold); color:var(--gold); }
+
+.hero-ctas{
+  display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-top:36px;
+  opacity:0; animation:up .7s .85s forwards;
+}
+.cta-primary{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--gold); color:var(--bg); padding:13px 28px;
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  font-family:'DM Sans',sans-serif;
+  transition:background .25s,transform .2s;
+}
+.cta-primary:hover{ background:var(--gold2); transform:translateY(-2px); }
+.cta-ghost{
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--muted2); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  transition:color .25s;
+}
+.cta-ghost:hover{ color:var(--white); }
+.arr{ display:inline-block; transition:transform .25s; }
+.cta-ghost:hover .arr{ transform:translateX(4px); }
+
+.hero-metrics{
+  display:grid;
+  grid-template-columns:repeat(4,auto);
+  gap:0; margin-top:48px; padding-top:36px;
+  border-top:1px solid var(--border);
+  opacity:0; animation:up .7s 1s forwards;
+  width:fit-content;
+}
+.metric{
+  padding:0 36px 0 0;
+  border-right:1px solid var(--border);
+}
+.metric:last-child{ border-right:none; padding-right:0; padding-left:36px; }
+.metric:first-child{ padding-left:0; }
+.metric:not(:first-child):not(:last-child){ padding-left:36px; }
+.m-num{
+  font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:2px;
+  color:var(--gold); display:block; line-height:1;
+}
+.m-label{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+
+/* Mobile hero metrics — 2x2 grid */
+@media(max-width:640px){
+  .hero-metrics{
+    grid-template-columns:1fr 1fr;
+    width:100%;
+  }
+  .metric{
+    padding:16px 16px;
+    border-right:none;
+    border-bottom:1px solid var(--border);
+  }
+  .metric:last-child{ padding-left:16px; }
+  .metric:nth-child(odd){ border-right:1px solid var(--border); }
+  .metric:nth-last-child(-n+2){ border-bottom:none; }
+}
+
+/* ═══════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════ */
+#about{ background:var(--surface); }
+.about-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:60px; align-items:start;
+}
+@media(max-width:900px){ .about-wrap{ grid-template-columns:1fr; gap:40px; } }
+
+.about-body{ font-size:14px; line-height:2; color:var(--muted2); }
+.about-body strong{ color:var(--white); font-weight:500; }
+.about-body p+p{ margin-top:18px; }
+.contact-inline{
+  margin-top:24px; padding:18px;
+  border:1px solid rgba(200,169,110,.2);
+  background:rgba(200,169,110,.04);
+  font-size:13px; line-height:1.9;
+  word-break:break-all;
+}
+.contact-inline strong{ color:var(--white); }
+
+.skills-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+.sk{
+  display:flex; align-items:center; gap:10px;
+  background:var(--bg); border:1px solid var(--border); padding:13px 16px;
+  font-size:12px; letter-spacing:.04em; color:var(--muted2);
+  transition:border-color .3s,color .3s,background .3s;
+}
+.sk:hover{ border-color:var(--gold); color:var(--white); background:rgba(200,169,110,.04); }
+.sk-dot{ width:5px; height:5px; background:var(--gold); border-radius:50%; flex-shrink:0; }
+
+ /* ─── PROJECTS ─── */
+ .project-filters { display: flex; gap: 0.75rem; margin-bottom: 3rem; flex-wrap: wrap; }
+  .filter-btn { font-family: var(--mono); font-size: 0.7rem; padding: 0.4rem 1rem; border: 1px solid var(--border); border-radius: 2rem; background: none; color: var(--text2); cursor: pointer; letter-spacing: 0.04em; transition: all 0.2s; }
+  .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); }
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+  .project-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    background: var(--bg2);
+    transition: border-color 0.2s, transform 0.2s;
+    display: flex; flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+  .project-number { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); margin-bottom: 1rem; }
+  .project-badges { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .badge { font-size: 0.65rem; font-family: var(--mono); padding: 0.25rem 0.6rem; border-radius: 1rem; }
+  .badge-live { background: rgba(232,255,71,0.12); color: var(--accent); border: 1px solid rgba(232,255,71,0.2); }
+  .badge-demo { background: rgba(255,255,255,0.06); color: var(--text2); border: 1px solid var(--border); }
+  .badge-ai { background: rgba(127,109,255,0.12); color: #a89eff; border: 1px solid rgba(127,109,255,0.2); }
+  .badge-cat { background: rgba(255,255,255,0.04); color: var(--text3); border: 1px solid var(--border); }
+  .project-title { font-size: 1.2rem; font-weight: 500; margin-bottom: 0.75rem; color: var(--text); }
+  .project-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.7; flex: 1; margin-bottom: 1.25rem; }
+  .project-stack { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .stack-tag { font-family: var(--mono); font-size: 0.65rem; padding: 0.2rem 0.5rem; background: var(--bg3); border-radius: 4px; color: var(--text3); }
+  .project-link { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: gap 0.2s; }
+  .project-link:hover { gap: 0.7rem; }
+
+  /* AI projects card special treatment */
+  .project-card.ai-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    opacity: 0.7;
+  }
+
+  /* ─── AI PRODUCTS SECTION ─── */
+  .ai-intro { max-width: 580px; color: var(--text2); line-height: 1.8; margin-bottom: 3rem; font-size: 0.95rem; }
+  .ai-intro strong { color: var(--text); font-weight: 500; }
+
+/* ═══════════════════════════════════════
+   SERVICES
+═══════════════════════════════════════ */
+#services{ background:var(--surface); }
+.services-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2px;
+}
+@media(max-width:900px){ .services-grid{ grid-template-columns:1fr; } }
+@media(min-width:601px) and (max-width:900px){ .services-grid{ grid-template-columns:1fr 1fr; } }
+
+.svc-card{
+  background:var(--bg); border:1px solid var(--border);
+  padding:36px 28px; transition:border-color .35s,background .35s;
+  position:relative; overflow:hidden;
+}
+.svc-card:hover{ border-color:var(--gold); background:rgba(200,169,110,.03); }
+.svc-card::after{
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  transform:scaleX(0); transition:transform .4s;
+}
+.svc-card:hover::after{ transform:scaleX(1); }
+.svc-ico{ font-size:24px; margin-bottom:16px; display:block; }
+.svc-name{ font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; margin-bottom:10px; }
+.svc-desc{ font-size:13px; line-height:1.85; color:var(--muted2); margin-bottom:20px; }
+.svc-includes{ list-style:none; margin-bottom:20px; }
+.svc-includes li{
+  font-size:12px; color:var(--muted2); padding:5px 0;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+}
+.svc-includes li::before{ content:'→'; color:var(--gold); font-size:10px; }
+.svc-price{ font-size:13px; color:var(--gold); }
+.svc-price big{ font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:1px; }
+.svc-usd{ font-size:11px; color:var(--muted); display:block; margin-top:2px; }
+
+/* ═══════════════════════════════════════
+   PROCESS
+═══════════════════════════════════════ */
+#process{ background:var(--bg2); }
+.process-steps{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:2px;
+}
+@media(max-width:900px){ .process-steps{ grid-template-columns:1fr 1fr; } }
+@media(max-width:500px){ .process-steps{ grid-template-columns:1fr; } }
+
+.step{
+  background:var(--surface); border:1px solid var(--border);
+  padding:28px 24px; position:relative; overflow:hidden;
+}
+.step-num{
+  font-family:'Bebas Neue',sans-serif; font-size:56px; letter-spacing:2px;
+  color:rgba(200,169,110,.1); position:absolute; top:10px; right:16px; line-height:1;
+}
+.step-ico{ font-size:22px; margin-bottom:14px; display:block; position:relative; z-index:1; }
+.step-title{ font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; margin-bottom:8px; position:relative; z-index:1; }
+.step-desc{ font-size:13px; line-height:1.8; color:var(--muted2); position:relative; z-index:1; }
+
+/* ═══════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════ */
+#testimonials{ background:var(--surface); }
+.testi-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2px;
+}
+@media(max-width:900px){ .testi-grid{ grid-template-columns:1fr; } }
+@media(min-width:601px) and (max-width:900px){ .testi-grid{ grid-template-columns:1fr 1fr; } }
+
+.testi-card{ background:var(--bg); border:1px solid var(--border); padding:28px; }
+.quote{ font-family:'Bebas Neue',sans-serif; font-size:64px; color:var(--gold); opacity:.3; line-height:.8; display:block; margin-bottom:10px; }
+.testi-text{ font-size:13px; line-height:1.85; color:var(--muted2); font-style:italic; margin-bottom:20px; }
+.testi-author{ display:flex; align-items:center; gap:12px; }
+.avatar{
+  width:40px; height:40px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),var(--blue));
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif; font-size:14px; color:var(--bg);
+}
+.a-name{ font-size:13px; color:var(--white); }
+.a-role{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+/* ═══════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════ */
+#contact{
+  background:var(--bg); text-align:center;
+  border-top:1px solid var(--border);
+  padding:var(--sp-xl) var(--px);
+}
+.contact-big{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(36px,6vw,84px); letter-spacing:4px; line-height:.95;
+  margin-bottom:14px;
+}
+.contact-sub{
+  font-size:14px; color:var(--muted2);
+  max-width:440px; margin:0 auto 40px; line-height:1.8;
+}
+.contact-methods{
+  display:flex; justify-content:center; gap:2px;
+  margin-bottom:44px; flex-wrap:wrap;
+}
+.contact-method{
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  background:var(--surface); border:1px solid var(--border);
+  padding:20px 32px; min-width:180px;
+  transition:border-color .3s,background .3s;
+}
+.contact-method:hover{ border-color:var(--gold); background:rgba(200,169,110,.04); }
+.cm-ico{ font-size:18px; }
+.cm-label{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.cm-val{ font-size:12px; color:var(--white); word-break:break-all; text-align:center; }
+
+@media(max-width:640px){
+  .contact-methods{ flex-direction:column; align-items:stretch; }
+  .contact-method{ flex-direction:row; gap:14px; padding:16px 20px; min-width:0; }
+  .cm-val{ text-align:left; }
+}
+
+.social-row{ display:flex; justify-content:center; gap:24px; flex-wrap:wrap; }
+.soc-link{
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted2); transition:color .3s;
+}
+.soc-link:hover{ color:var(--gold); }
+.soc-link::before{ content:'↗'; }
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer{
+  position:relative; z-index:2;
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:10px;
+  padding:20px var(--px); border-top:1px solid var(--border);
+  font-size:11px; letter-spacing:.06em; color:var(--muted);
+}
+@media(max-width:640px){ footer{ justify-content:center; text-align:center; } }
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════ */
+.reveal{ opacity:0; transform:translateY(32px); transition:opacity .7s ease,transform .7s ease; }
+.reveal.in{ opacity:1; transform:none; }
+.reveal-d1{ transition-delay:.1s; }
+.reveal-d2{ transition-delay:.2s; }
+.reveal-d3{ transition-delay:.3s; }
+
+/* ═══════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════ */
+@keyframes up{ from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+@keyframes blink{ 0%,100%{opacity:1} 50%{opacity:.3} }
+
+
+/* ── Filter Tabs ── */
+.proj-filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+ 
+.filter-btn {
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.82rem;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+ 
+.filter-btn:hover {
+  border-color: rgba(255,255,255,0.4);
+  color: #fff;
+}
+ 
+.filter-btn.active {
+  background: #c9a84c;        /* match your gold accent */
+  border-color: #c9a84c;
+  color: #0a0a0a;
+  font-weight: 600;
+}
+ 
+.filter-count {
+  background: rgba(0,0,0,0.2);
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+}
+ 
+.filter-btn.active .filter-count {
+  background: rgba(0,0,0,0.25);
+}
+ 
+/* ── Subtle entrance animation on filter toggle ── */
+.proj-card {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<canvas id="canvas3d"></canvas>
+
+<!-- AVAILABILITY -->
+<div class="avail-badge"><span class="avail-dot"></span>Available for Projects</div>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-close" id="mobClose">✕</button>
+  <a href="#about" onclick="closeMob()">About</a>
+  <a href="#projects" onclick="closeMob()">Work</a>
+  <a href="#services" onclick="closeMob()">Services</a>
+  <a href="#contact" onclick="closeMob()">Contact</a>
+  <a href="https://wa.me/918003987193" target="_blank" style="color:var(--gold)">Hire Me →</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">MG<em>.</em></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Work</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="https://wa.me/918003987193" target="_blank" class="nav-hire">Hire Me →</a>
+  <button class="ham" id="hamBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section id="hero">
+  <div class="hero-eyebrow">Full-Stack Web Developer · Jaipur, India</div>
+  <h1 class="hero-name">
+    <span class="first">Mayank</span>
+    <span class="last">Gupta</span>
+  </h1>
+  <p class="hero-role"><span>Full-Stack Web Developer</span> · React · Next.js · Node.js · 2+ Live Projects</p>
+  <p class="hero-tagline">"I Build Websites That Grow Your Business."</p>
+  <div class="hero-stack">
+    <span class="stack-pill">React.js</span>
+    <span class="stack-pill">Next.js</span>
+    <span class="stack-pill">Node.js</span>
+    <span class="stack-pill">MongoDB</span>
+    <span class="stack-pill">Tailwind</span>
+    <span class="stack-pill">Three.js</span>
+  </div>
+  <div class="hero-ctas">
+    <a href="#projects" class="cta-primary">View My Work ↓</a>
+    <a href="#contact" class="cta-ghost">Start a Project <span class="arr">→</span></a>
+  </div>
+  <div class="hero-metrics">
+    <div class="metric"><span class="m-num">2+</span><span class="m-label">Live Projects</span></div>
+    <div class="metric"><span class="m-num">10+</span><span class="m-label">Demo Sites</span></div>
+    <div class="metric"><span class="m-num">7</span><span class="m-label">Niches</span></div>
+    <div class="metric"><span class="m-num">100%</span><span class="m-label">Satisfaction</span></div>
+  </div>
+</section>
+
+<!-- ══════════════ ABOUT ══════════════ -->
+<section id="about">
+  <div class="sec-tag">About Me</div>
+  <h2 class="sec-title reveal">WHO I AM</h2>
+  <div class="about-wrap">
+    <div>
+      <div class="about-body reveal">
+        <p>Hey, I'm <strong>Mayank Gupta</strong> — a passionate full-stack web developer based in <strong>Jaipur, Rajasthan</strong>. I build <strong>fast, beautiful, and conversion-focused websites</strong> for businesses across India and worldwide.</p>
+        <p>I've delivered <strong>real client projects</strong> including SoftPro9 — a full-scale IT training & services platform used by thousands. I build everything from landing pages to complete web applications.</p>
+        <p>Whether you're a <strong>local business in Rajasthan</strong>, an <strong>Indian startup</strong>, or a <strong>foreign company</strong> — I deliver results that matter.</p>
+        <div class="contact-inline">
+          📞 <strong>+91 80039 87193</strong><br>
+          ✉️ <strong>mg8003987193@gmail.com</strong>
+        </div>
+      </div>
+    </div>
+    <div class="skills-wrap reveal reveal-d1">
+      <div class="sk"><span class="sk-dot"></span>React.js</div>
+      <div class="sk"><span class="sk-dot"></span>Next.js</div>
+      <div class="sk"><span class="sk-dot"></span>Node.js</div>
+      <div class="sk"><span class="sk-dot"></span>MongoDB</div>
+      <div class="sk"><span class="sk-dot"></span>TypeScript</div>
+      <div class="sk"><span class="sk-dot"></span>Tailwind CSS</div>
+      <div class="sk"><span class="sk-dot"></span>REST APIs</div>
+      <div class="sk"><span class="sk-dot"></span>PostgreSQL</div>
+      <div class="sk"><span class="sk-dot"></span>Three.js</div>
+      <div class="sk"><span class="sk-dot"></span>GSAP / Framer</div>
+      <div class="sk"><span class="sk-dot"></span>Git & GitHub</div>
+      <div class="sk"><span class="sk-dot"></span>Vercel / AWS</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS (CLIENT + DEMO) -->
+<section id="projects">
+  <p class="section-label">Selected Work</p>
+  <h2 class="section-title">Client &amp; <em>Demo</em> Projects</h2>
+  <div class="project-filters">
+    <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
+    <button class="filter-btn" onclick="filterProjects('live', this)">Live Clients</button>
+    <button class="filter-btn" onclick="filterProjects('demo', this)">Demos</button>
+  </div>
+  <div class="projects-grid" id="projects-grid">
+
+    <div class="project-card" data-type="live">
+      <div class="project-number">01</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Ed-Tech · IT Services</span>
+        <span class="badge badge-live">Live Client</span>
+      </div>
+      <h3 class="project-title">SoftPro9 Academy</h3>
+      <p class="project-desc">Full-scale technology training & IT services platform — SAP solutions, web & app development, AI-powered digital marketing, recruitment & blog CMS. 10,000+ students across India.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Next.js</span><span class="stack-tag">React</span><span class="stack-tag">Node.js</span><span class="stack-tag">MongoDB</span><span class="stack-tag">SEO</span>
+      </div>
+      <a href="https://softpro9.com" target="_blank" class="project-link">View Live → softpro9.com</a>
+    </div>
+
+    <div class="project-card" data-type="live">
+      <div class="project-number">02</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Career · Ed-Tech</span>
+        <span class="badge badge-live">Live Client</span>
+      </div>
+      <h3 class="project-title">CareerSakha</h3>
+      <p class="project-desc">Comprehensive career guidance & mentorship platform — psychometric assessments, expert counsellors, course & college finder, job placement support, and student community.</p>
+      <div class="project-stack">
+        <span class="stack-tag">React</span><span class="stack-tag">Node.js</span><span class="stack-tag">MongoDB</span><span class="stack-tag">Assessment Engine</span><span class="stack-tag">SEO</span>
+      </div>
+      <a href="https://careersakha.com" target="_blank" class="project-link">View Live → careersakha.com</a>
+    </div>
+
+    <div class="project-card" data-type="demo">
+      <div class="project-number">03</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Restaurant · Cafe</span>
+        <span class="badge badge-demo">Demo</span>
+      </div>
+      <h3 class="project-title">Hype Rooftop Cafe</h3>
+      <p class="project-desc">Premium rooftop cafe — table reservation, full menu, gallery, reviews & location integration.</p>
+      <div class="project-stack">
+        <span class="stack-tag">HTML</span><span class="stack-tag">CSS</span><span class="stack-tag">JS</span><span class="stack-tag">Reservation</span>
+      </div>
+      <a href="https://hype-rooftop-cafe-lounge.vercel.app/" target="_blank" class="project-link">View Demo →</a>
+    </div>
+
+    <div class="project-card" data-type="demo">
+      <div class="project-number">04</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Gym · Fitness</span>
+        <span class="badge badge-demo">Demo</span>
+      </div>
+      <h3 class="project-title">Ironman Gym</h3>
+      <p class="project-desc">High-energy gym site — trainer profiles, membership pricing, transformations & WhatsApp lead capture.</p>
+      <div class="project-stack">
+        <span class="stack-tag">HTML</span><span class="stack-tag">CSS</span><span class="stack-tag">JS</span><span class="stack-tag">Lead Gen</span>
+      </div>
+      <a href="https://ironman-gym.vercel.app/" target="_blank" class="project-link">View Demo →</a>
+    </div>
+
+    <div class="project-card" data-type="demo">
+      <div class="project-number">05</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Real Estate</span>
+        <span class="badge badge-demo">Demo</span>
+      </div>
+      <h3 class="project-title">Suvidha Property Dealer</h3>
+      <p class="project-desc">Complete real estate platform — filterable listings (residential, commercial, plots), property cards with pricing, enquiry forms, testimonials & Maps integration.</p>
+      <div class="project-stack">
+        <span class="stack-tag">HTML</span><span class="stack-tag">CSS</span><span class="stack-tag">JS</span><span class="stack-tag">Filter System</span><span class="stack-tag">Maps</span>
+      </div>
+      <a href="https://suvidha-property-dealer-kota.vercel.app/" target="_blank" class="project-link">View Demo →</a>
+    </div>
+
+    <div class="project-card" data-type="demo">
+      <div class="project-number">06</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Salon · Beauty</span>
+        <span class="badge badge-demo">Demo</span>
+      </div>
+      <h3 class="project-title">Harsh's Makeover</h3>
+      <p class="project-desc">Premium unisex salon & academy — before/after gallery, services, booking form & Instagram feed.</p>
+      <div class="project-stack">
+        <span class="stack-tag">HTML</span><span class="stack-tag">CSS</span><span class="stack-tag">JS</span><span class="stack-tag">Gallery</span>
+      </div>
+      <a href="https://harshs-makeover.vercel.app/" target="_blank" class="project-link">View Demo →</a>
+    </div>
+
+    <div class="project-card" data-type="demo">
+      <div class="project-number">07</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Coaching · Ed-Tech</span>
+        <span class="badge badge-demo">Demo</span>
+      </div>
+      <h3 class="project-title">Quantum Kota — GG Sir</h3>
+      <p class="project-desc">Physics coaching institute — courses, topper results, reviews & admission enquiry system.</p>
+      <div class="project-stack">
+        <span class="stack-tag">HTML</span><span class="stack-tag">CSS</span><span class="stack-tag">JS</span><span class="stack-tag">Admission Form</span>
+      </div>
+      <a href="https://quantum-kota-g-g-sir.vercel.app/" target="_blank" class="project-link">View Demo →</a>
+    </div>
+
+    <div class="project-card" data-type="demo">
+      <div class="project-number">08</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">E-Commerce · Shop</span>
+        <span class="badge badge-demo">Demo</span>
+      </div>
+      <h3 class="project-title">Akshat Electronics</h3>
+      <p class="project-desc">Electronics & furniture store — product catalog, deals, brand showcase, reviews & WhatsApp widget.</p>
+      <div class="project-stack">
+        <span class="stack-tag">HTML</span><span class="stack-tag">CSS</span><span class="stack-tag">JS</span><span class="stack-tag">Product Catalog</span>
+      </div>
+      <a href="https://akshat-electronics.vercel.app/" target="_blank" class="project-link">View Demo →</a>
+    </div>
+
+    <div class="project-card" data-type="demo">
+      <div class="project-number">09</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Fashion · Retail</span>
+        <span class="badge badge-demo">Demo</span>
+      </div>
+      <h3 class="project-title">Roop Shringar Sarees</h3>
+      <p class="project-desc">Elegant saree showroom — collection gallery, categories, Instagram feed & store location.</p>
+      <div class="project-stack">
+        <span class="stack-tag">HTML</span><span class="stack-tag">CSS</span><span class="stack-tag">JS</span><span class="stack-tag">Gallery</span>
+      </div>
+      <a href="https://roop-shringar-saree-showroom.vercel.app/" target="_blank" class="project-link">View Demo →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     AI PRODUCTS — NEW SECTION
+════════════════════════════════════ -->
+<section id="ai-products">
+  <p class="section-label">AI Products</p>
+  <h2 class="section-title">Solving real problems with <em>AI</em></h2>
+  <p class="ai-intro">
+    Beyond client work, I build <strong>AI-powered products</strong> for underserved Indians — students, job-seekers, citizens navigating government systems, and people who can't afford lawyers or doctors. These are <strong>live, fully functional tools</strong> built with modern AI APIs.
+  </p>
+  <div class="projects-grid">
+
+    <div class="project-card ai-card">
+      <div class="project-number">AI — 01</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Ed-Tech · AI</span>
+        <span class="badge badge-ai">AI Product</span>
+        <span class="badge badge-live">Live</span>
+      </div>
+      <h3 class="project-title">Study AI Hub</h3>
+      <p class="project-desc">AI-powered study tools for India's biggest competitive exams — UPSC, JEE, NEET & SSC. Concept clarity, answer practice, and focused revision, all aligned to official syllabi. 16+ AI tools across 4 exam categories.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Next.js</span><span class="stack-tag">AI API</span><span class="stack-tag">Tailwind</span><span class="stack-tag">Ed-Tech</span>
+      </div>
+      <a href="https://study-ai-hub.vercel.app/" target="_blank" class="project-link">View Live →</a>
+    </div>
+
+    <div class="project-card ai-card">
+      <div class="project-number">AI — 02</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">GovTech · AI</span>
+        <span class="badge badge-ai">AI Product</span>
+        <span class="badge badge-live">Live</span>
+      </div>
+      <h3 class="project-title">SarkariMitra AI</h3>
+      <p class="project-desc">AI-powered step-by-step guide for 50+ sarkari forms — Passport, PAN, Aadhaar, Birth Certificate, and more. In plain Hinglish. 100% free, no data stored, links only to official portals.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Next.js</span><span class="stack-tag">AI API</span><span class="stack-tag">Hinglish UX</span><span class="stack-tag">GovTech</span>
+      </div>
+      <a href="https://sarkari-ai-ten.vercel.app/" target="_blank" class="project-link">View Live →</a>
+    </div>
+
+    <div class="project-card ai-card">
+      <div class="project-number">AI — 03</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">Career · AI</span>
+        <span class="badge badge-ai">AI Product</span>
+        <span class="badge badge-live">Live</span>
+      </div>
+      <h3 class="project-title">InterviewGuru AI</h3>
+      <p class="project-desc">India's AI interview coach — mock interviews and expert guidance for government & private sector jobs. 10+ categories (Bank PO, IAS, IT, MBA, etc.), 50+ questions, real-time AI feedback. Completely free.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Next.js</span><span class="stack-tag">AI API</span><span class="stack-tag">Real-time Feedback</span><span class="stack-tag">Career</span>
+      </div>
+      <a href="https://interview-guru-ai.vercel.app/" target="_blank" class="project-link">View Live →</a>
+    </div>
+
+    <div class="project-card ai-card">
+      <div class="project-number">AI — 04</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">LegalTech · AI</span>
+        <span class="badge badge-ai">AI Product</span>
+        <span class="badge badge-live">Live</span>
+      </div>
+      <h3 class="project-title">LegalSathi AI</h3>
+      <p class="project-desc">Free AI legal guidance for every Indian who can't afford a lawyer. 12 legal topics, 8 free document templates, FIR filing guide, emergency helplines. Plain Hindi/Hinglish, verified legal info, zero data stored.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Next.js</span><span class="stack-tag">AI API</span><span class="stack-tag">LegalTech</span><span class="stack-tag">Hinglish UX</span>
+      </div>
+      <a href="https://legalsathi-ai.vercel.app/" target="_blank" class="project-link">View Live →</a>
+    </div>
+
+    <div class="project-card ai-card">
+      <div class="project-number">AI — 05</div>
+      <div class="project-badges">
+        <span class="badge badge-cat">HealthTech · AI</span>
+        <span class="badge badge-ai">AI Product</span>
+        <span class="badge badge-live">Live</span>
+      </div>
+      <h3 class="project-title">AyushAI</h3>
+      <p class="project-desc">A free AI health assistant for Indians — symptom checker, home remedies (Ayurvedic & modern), medicine info, free clinic finder, and daily health tips. Designed for people without easy access to healthcare.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Next.js</span><span class="stack-tag">AI API</span><span class="stack-tag">HealthTech</span><span class="stack-tag">Ayurveda</span>
+      </div>
+      <a href="https://ayush-ai-t6bo.vercel.app/" target="_blank" class="project-link">View Live →</a>
+    </div>
+
+  </div>
+</section>
+
+
+
+<!-- ══════════════ SERVICES ══════════════ -->
+<section id="services">
+  <div class="sec-tag">What I Offer</div>
+  <h2 class="sec-title reveal">SERVICES &amp; PRICING</h2>
+  <div class="services-grid">
+    <div class="svc-card reveal">
+      <span class="svc-ico">⬡</span>
+      <div class="svc-name">Landing Page</div>
+      <p class="svc-desc">Single-page, high-converting website. Perfect for local businesses, product launches & campaigns.</p>
+      <ul class="svc-includes">
+        <li>Responsive design</li>
+        <li>WhatsApp / Contact form</li>
+        <li>Google Maps integration</li>
+        <li>Basic SEO setup</li>
+        <li>Delivered in 3–5 days</li>
+      </ul>
+      <div class="svc-price">Starting at <big>₹8,000</big><span class="svc-usd">~ $100 USD</span></div>
+    </div>
+    <div class="svc-card reveal reveal-d1">
+      <span class="svc-ico">◈</span>
+      <div class="svc-name">Business Website</div>
+      <p class="svc-desc">Multi-page website with CMS, blog, booking system and full responsive design.</p>
+      <ul class="svc-includes">
+        <li>5–8 pages</li>
+        <li>Blog / CMS included</li>
+        <li>Booking or enquiry system</li>
+        <li>SEO optimised</li>
+        <li>Delivered in 7–14 days</li>
+      </ul>
+      <div class="svc-price">Starting at <big>₹20,000</big><span class="svc-usd">~ $250 USD</span></div>
+    </div>
+    <div class="svc-card reveal reveal-d2">
+      <span class="svc-ico">◉</span>
+      <div class="svc-name">Full-Stack App</div>
+      <p class="svc-desc">Complete web apps — auth, database, APIs, dashboards. Scalable and production-ready.</p>
+      <ul class="svc-includes">
+        <li>React / Next.js frontend</li>
+        <li>Node.js + MongoDB backend</li>
+        <li>User auth & dashboard</li>
+        <li>REST API integration</li>
+        <li>Deployed on Vercel / AWS</li>
+      </ul>
+      <div class="svc-price">Starting at <big>₹50,000</big><span class="svc-usd">~ $600 USD</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ PROCESS ══════════════ -->
+<section id="process">
+  <div class="sec-tag">How I Work</div>
+  <h2 class="sec-title reveal">MY PROCESS</h2>
+  <div class="process-steps">
+    <div class="step reveal">
+      <span class="step-num">01</span>
+      <span class="step-ico">💬</span>
+      <div class="step-title">Discovery Call</div>
+      <p class="step-desc">We discuss your business, goals and requirements. Free 15-min call.</p>
+    </div>
+    <div class="step reveal reveal-d1">
+      <span class="step-num">02</span>
+      <span class="step-ico">🎨</span>
+      <div class="step-title">Design &amp; Plan</div>
+      <p class="step-desc">I create a design mockup for approval before writing a single line of code.</p>
+    </div>
+    <div class="step reveal reveal-d2">
+      <span class="step-num">03</span>
+      <span class="step-ico">⚡</span>
+      <div class="step-title">Build &amp; Review</div>
+      <p class="step-desc">Fast development with regular updates. You review and give feedback at every stage.</p>
+    </div>
+    <div class="step reveal reveal-d3">
+      <span class="step-num">04</span>
+      <span class="step-ico">🚀</span>
+      <div class="step-title">Launch &amp; Support</div>
+      <p class="step-desc">We go live! I handle deployment and provide 30 days of free post-launch support.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ TESTIMONIALS ══════════════ -->
+<section id="testimonials">
+  <div class="sec-tag">Client Words</div>
+  <h2 class="sec-title reveal">WHAT CLIENTS SAY</h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <span class="quote">"</span>
+      <p class="testi-text">Mayank delivered our full website ahead of schedule. The quality of code and attention to design detail was impressive. He's communicative, professional and genuinely cares about the result.</p>
+      <div class="testi-author">
+        <div class="avatar">SP</div>
+        <div><div class="a-name">SoftPro9 Team</div><div class="a-role">IT Services, Bangalore</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal reveal-d2">
+      <span class="quote">"</span>
+      <p class="testi-text">Knowledgeable developer who brings creative ideas to the table. Final product exceeded our expectations in both design and performance.</p>
+      <div class="testi-author">
+        <div class="avatar">★</div>
+        <div><div class="a-name">Freelance Client</div><div class="a-role">Startup Founder, India</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CONTACT ══════════════ -->
+<section id="contact">
+  <div class="sec-tag" style="justify-content:center">Get In Touch</div>
+  <div class="contact-big reveal">
+    LET'S BUILD<br><span style="color:var(--gold)">SOMETHING GREAT</span>
+  </div>
+  <p class="contact-sub reveal">Available for freelance projects, full-time roles and collaborations. Indian &amp; international clients welcome. Response within 24 hours.</p>
+  <div class="contact-methods reveal">
+    <a href="mailto:mg8003987193@gmail.com" class="contact-method">
+      <span class="cm-ico">✉️</span>
+      <span class="cm-label">Email</span>
+      <span class="cm-val">mg8003987193@gmail.com</span>
+    </a>
+    <a href="https://wa.me/918003987193" target="_blank" class="contact-method">
+      <span class="cm-ico">💬</span>
+      <span class="cm-label">WhatsApp</span>
+      <span class="cm-val">+91 80039 87193</span>
+    </a>
+    <a href="tel:+918003987193" class="contact-method">
+      <span class="cm-ico">📞</span>
+      <span class="cm-label">Call</span>
+      <span class="cm-val">+91 80039 87193</span>
+    </a>
+  </div>
+  <div class="social-row reveal">
+    <a href="https://github.com/Mayankgupta2001" target="_blank" class="soc-link">GitHub</a>
+    <a href="https://www.linkedin.com/in/mayank-gupta-1421502a4/" target="_blank" class="soc-link">LinkedIn</a>
+    <a href="https://softpro9.com" target="_blank" class="soc-link">SoftPro9</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 Mayank Gupta. All rights reserved.</span>
+  <span style="color:var(--gold)">"I Build Websites That Grow Your Business."</span>
+  <span>Jaipur, Rajasthan 🇮🇳</span>
+</footer>
+
+<script>
+/* ── HAMBURGER MENU ── */
+const hamBtn = document.getElementById('hamBtn');
+const mobMenu = document.getElementById('mobMenu');
+const mobClose = document.getElementById('mobClose');
+function openMob(){ mobMenu.classList.add('open'); document.body.style.overflow='hidden'; }
+function closeMob(){ mobMenu.classList.remove('open'); document.body.style.overflow=''; }
+hamBtn.addEventListener('click', openMob);
+mobClose.addEventListener('click', closeMob);
+
+/* ── CURSOR (desktop only) ── */
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+if(cur && ring){
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+  (function loop(){ rx+=(mx-rx)*.1; ry+=(my-ry)*.1; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(loop); })();
+}
+
+/* ── THREE.JS 3D BG ── */
+const isMobile = window.innerWidth < 768;
+const canvas = document.getElementById('canvas3d');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:!isMobile, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1 : 2));
+renderer.setSize(innerWidth, innerHeight);
+
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, .1, 100);
+cam.position.z = 6;
+
+// Torus knot
+const kGeo = new THREE.TorusKnotGeometry(isMobile ? 1.4 : 2, 0.5, isMobile ? 80 : 180, 32, 2, 3);
+const kMat = new THREE.MeshBasicMaterial({color:0xc8a96e, wireframe:true, transparent:true, opacity:.1});
+const knot = new THREE.Mesh(kGeo, kMat);
+knot.position.set(isMobile ? 2.5 : 4.5, -0.5, -2);
+scene.add(knot);
+
+// Icosahedron
+const iGeo = new THREE.IcosahedronGeometry(isMobile ? 1.8 : 2.5, 1);
+const iMat = new THREE.MeshBasicMaterial({color:0x63b3ed, wireframe:true, transparent:true, opacity:.05});
+const ico = new THREE.Mesh(iGeo, iMat);
+ico.position.set(-4, 1, -4);
+scene.add(ico);
+
+// Octahedron
+const oGeo = new THREE.OctahedronGeometry(1, 0);
+const oMat = new THREE.MeshBasicMaterial({color:0xc8a96e, wireframe:true, transparent:true, opacity:.12});
+const oct = new THREE.Mesh(oGeo, oMat);
+oct.position.set(-1.5, 2.5, -3);
+scene.add(oct);
+
+// Particles — fewer on mobile
+const pCount = isMobile ? 100 : 300;
+const pPos = new Float32Array(pCount*3);
+for(let i=0;i<pCount;i++){
+  pPos[i*3]=(Math.random()-.5)*24;
+  pPos[i*3+1]=(Math.random()-.5)*20;
+  pPos[i*3+2]=(Math.random()-.5)*12-2;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({color:0xc8a96e, size:.025, transparent:true, opacity:.4})));
+
+// Grid
+const grid = new THREE.GridHelper(50, 50, 0x111130, 0x0a0a18);
+grid.position.y = -5; grid.rotation.x = .12;
+scene.add(grid);
+
+let pmx=0, pmy=0;
+document.addEventListener('mousemove', e=>{ pmx=(e.clientX/innerWidth-.5)*2; pmy=-(e.clientY/innerHeight-.5)*2; });
+
+let t=0;
+(function animate(){
+  requestAnimationFrame(animate); t+=.004;
+  knot.rotation.x=t*.35; knot.rotation.y=t*.55;
+  ico.rotation.y=t*.18; ico.rotation.x=t*.08;
+  oct.rotation.x=t*.6; oct.rotation.z=t*.4;
+  if(!isMobile){
+    cam.position.x+=(pmx*.5-cam.position.x)*.025;
+    cam.position.y+=(pmy*.25-cam.position.y)*.025;
+  }
+  cam.lookAt(0,0,0);
+  renderer.render(scene,cam);
+})();
+
+window.addEventListener('resize',()=>{
+  cam.aspect=innerWidth/innerHeight;
+  cam.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+/* ── SCROLL REVEAL ── */
+const els = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+}, {threshold:.08});
+els.forEach(e=>obs.observe(e));
+
+
+(function () {
+  const btns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.proj-card');
+ 
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+ 
+      const filter = btn.dataset.filter;
+      cards.forEach(card => {
+        if (filter === 'all') {
+          card.style.display = '';
+        } else {
+          card.style.display = card.dataset.type === filter ? '' : 'none';
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
