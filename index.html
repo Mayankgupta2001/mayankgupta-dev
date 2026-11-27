@@ -203,6 +203,13 @@
   .filters button:hover{color:var(--text);border-color:var(--muted)}
   .filters button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600}
   .rows{border-top:1px solid var(--line)}
+  .more{margin-top:20px}
+  .more button{
+    font:inherit;font-size:15px;font-weight:600;color:var(--text);
+    background:transparent;border:1px solid var(--line);border-radius:999px;
+    padding:11px 22px;cursor:pointer;transition:border-color .2s,color .2s;
+  }
+  .more button:hover{border-color:var(--gold);color:var(--gold)}
   .row{
     display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 28px;gap:28px;align-items:center;
     padding:24px 14px;border-bottom:1px solid var(--line);
@@ -304,6 +311,7 @@
           <div class="cta-row">
             <a class="btn" href="#work">See my work</a>
             <a class="btn ghost" href="#contact">Get in touch</a>
+            <a class="btn ghost" href="MayankGupta.pdf" download>Download resume</a>
           </div>
         </div>
 
@@ -384,6 +392,7 @@
         <button type="button" data-filter="demo" aria-pressed="false">Demo sites</button>
       </div>
       <div class="rows" id="rows"></div>
+      <div class="more" id="more"></div>
     </div>
   </section>
 
@@ -478,6 +487,7 @@
       <p>I'm open to full-time full-stack and product engineering roles, and to collaborations. Email is the fastest way to reach me.</p>
       <a class="mail" href="mailto:mg8003987193@gmail.com">mg8003987193@gmail.com</a>
       <div class="links">
+        <a class="btn ghost" href="MayankGupta.pdf" download>Resume (PDF)</a>
         <a class="btn ghost" href="https://wa.me/918003987193" target="_blank" rel="noopener">WhatsApp</a>
         <a class="btn ghost" href="https://www.linkedin.com/in/mayank-gupta-1421502a4/" target="_blank" rel="noopener">LinkedIn</a>
         <a class="btn ghost" href="https://github.com/Mayankgupta2001" target="_blank" rel="noopener">GitHub</a>
@@ -517,9 +527,22 @@
   var rowsEl = document.getElementById('rows');
   var arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+  var moreEl = document.getElementById('more');
+  var demoCount = projects.filter(function(p){return p.g==='demo'}).length;
+  var showDemos = false;
+  var currentFilter = 'all';
   function render(filter){
+    currentFilter = filter;
+    // On "All", demo sites stay folded until asked for, so the strongest work is seen first
+    var hideDemos = (filter==='all' && !showDemos);
+    moreEl.innerHTML = hideDemos
+      ? '<button type="button" id="showDemos">Show '+demoCount+' demo sites</button>'
+      : '';
     rowsEl.innerHTML = projects
-      .filter(function(p){return filter==='all' || p.g===filter})
+      .filter(function(p){
+        if(filter==='all') return !(hideDemos && p.g==='demo');
+        return p.g===filter;
+      })
       .map(function(p){
         return '<a class="row" href="'+p.u+'" target="_blank" rel="noopener" aria-label="'+esc(p.n)+' (opens in a new tab)">'
           + '<div><h3>'+esc(p.n)+'</h3><p>'+esc(p.d)+'</p></div>'
@@ -528,6 +551,9 @@
       }).join('');
   }
   render('all');
+  moreEl.addEventListener('click', function(e){
+    if(e.target && e.target.id==='showDemos'){ showDemos = true; render(currentFilter); }
+  });
   document.querySelectorAll('.filters button').forEach(function(b){
     b.addEventListener('click', function(){
       document.querySelectorAll('.filters button').forEach(function(x){x.setAttribute('aria-pressed','false')});
